@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "quit-smoking",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8081", "--directory", "/Users/guozexu/IdeaProjects/戒烟"],
+      "port": 8081
+    }
+  ]
+}
