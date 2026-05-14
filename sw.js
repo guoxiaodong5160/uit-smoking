@@ -1,5 +1,5 @@
-const CACHE = 'qsmk-v43';
-const FILES = ['./index.html', './app.js?v=43', './manifest.json', './icon.svg'];
+const CACHE = 'qsmk-v47';
+const FILES = ['./index.html', './app.js?v=47', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
