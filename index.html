@@ -409,6 +409,7 @@
       position: absolute;
       width: 58px;
       min-height: 58px;
+      transform: translate(-50%, -50%);
       border: none;
       border-radius: 8px;
       background: transparent;
@@ -423,7 +424,7 @@
       text-align: center;
       transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
     }
-    .organ-btn:active { transform: scale(0.96); }
+    .organ-btn:active { transform: translate(-50%, -50%) scale(0.96); }
     .organ-btn.selected { background: transparent; }
     .organ-btn::before {
       content: '';
@@ -1705,7 +1706,7 @@
   </div>
 </div>
 
-<script src="app.js?v=49"></script>
+<script src="app.js?v=50"></script>
 <script>
   (function() {
     try {
