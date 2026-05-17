@@ -4,7 +4,7 @@ const DEMO_MODE = new URLSearchParams(location.search).has('demo');
 const APP_VERSION = 6;
 
 // ─── Organ Data ───────────────────────────────────────────────
-const ORGANS = [
+const ORGAN_CATEGORIES_CORE = [
   {
     id:'heart', name:'心脏', emoji:'❤️',
     milestones:[
@@ -88,6 +88,220 @@ const ORGANS = [
     ]
   },
 ];
+
+const ORGAN_CATEGORIES_BEAUTY = [
+  { id:'skin', name:'皮肤', emoji:'✨',
+    milestones:[
+      {time:0, pct:0},
+      {time:3*DAY,    pct:10, title:'皮肤供氧开始改善', benefits:['皮肤细胞获得更多的氧气供给','面部微循环开始改善','皮肤干燥感逐渐减轻']},
+      {time:30*DAY,   pct:35, title:'肤色开始好转',    benefits:['皮肤暗黄现象明显减轻','面色变得更加红润均匀','皮肤弹性有所改善']},
+      {time:90*DAY,   pct:65, title:'皮肤焕然改善',    benefits:['胶原蛋白生成量增加','皱纹生长速度大幅减缓','皮肤光泽度和水润度明显提升']},
+      {time:180*DAY,  pct:100,title:'皮肤完全焕新',    benefits:['皮肤老化速度恢复至正常水平','皮肤癌等风险明显降低','整体气色、容颜焕然一新']},
+    ]
+  },
+  { id:'teeth', name:'牙齿', emoji:'🦷',
+    milestones:[
+      {time:0, pct:0},
+      {time:7*DAY,   pct:20, title:'牙渍开始减少',  benefits:['新烟渍堆积停止','刷牙能感到更顺滑','牙龈不再发暗']},
+      {time:30*DAY,  pct:45, title:'牙齿明显变白',  benefits:['表层烟渍大幅清除','口臭明显减轻','牙龈出血减少']},
+      {time:90*DAY,  pct:75, title:'牙龈健康恢复',  benefits:['牙周炎症消退','牙齿稳固度提升','牙菌斑减少']},
+      {time:YEAR,    pct:100,title:'口腔完全恢复',  benefits:['牙周病风险接近非吸烟者','口腔癌风险显著降低','牙齿色泽自然']},
+    ]
+  },
+  { id:'hair', name:'头发', emoji:'💇',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:25, title:'头皮血供改善',   benefits:['毛囊获得更多氧气','头皮油脂分泌趋稳','发根变得更稳固']},
+      {time:90*DAY,  pct:55, title:'发质明显改善',   benefits:['头发光泽度提升','断发减少','头发不再脆弱']},
+      {time:180*DAY, pct:85, title:'毛发新生加速',   benefits:['新发生长速度加快','头发更顺滑有韧性','白发出现速度减缓']},
+      {time:YEAR,    pct:100,title:'发质完全恢复',   benefits:['头发健康水平接近非吸烟者','脱发风险下降','整体发量改善']},
+    ]
+  },
+  { id:'lips', name:'嘴唇', emoji:'👄',
+    milestones:[
+      {time:0, pct:0},
+      {time:14*DAY,  pct:30, title:'唇色开始变红',   benefits:['暗沉黑色素减少','嘴唇不再干裂','含水量提升']},
+      {time:60*DAY,  pct:60, title:'唇部明显改善',   benefits:['唇色恢复自然粉红','嘴唇丰润度提升','唇纹减少']},
+      {time:180*DAY, pct:100,title:'嘴唇完全恢复',   benefits:['唇色达到非吸烟者水平','嘴唇柔软有弹性','唇癌风险降低']},
+    ]
+  },
+  { id:'eyes', name:'眼睛', emoji:'👁️',
+    milestones:[
+      {time:0, pct:0},
+      {time:7*DAY,   pct:20, title:'眼白开始变清亮', benefits:['眼睛干涩感减轻','结膜充血减少','看东西更舒适']},
+      {time:30*DAY,  pct:50, title:'视觉清晰度提升', benefits:['夜间视力改善','视觉对比敏感度提升','眼睛疲劳感减轻']},
+      {time:YEAR,    pct:100,title:'眼部健康恢复',   benefits:['白内障风险大幅降低','黄斑病变风险下降','干眼症显著改善']},
+    ]
+  },
+  { id:'nails', name:'指甲', emoji:'💅',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:25, title:'指甲泛黄减轻',   benefits:['指甲不再发黄','指甲根部气色改善','断裂现象减少']},
+      {time:90*DAY,  pct:60, title:'指甲生长加速',   benefits:['新生指甲更厚实','指甲硬度提升','光泽度恢复']},
+      {time:180*DAY, pct:100,title:'指甲完全健康',   benefits:['指甲色泽自然','生长速度恢复正常','不再容易碎裂']},
+    ]
+  },
+  { id:'breath', name:'口气', emoji:'🌬️',
+    milestones:[
+      {time:0, pct:0},
+      {time:3*DAY,   pct:40, title:'烟味开始消散',   benefits:['呼气不再有烟味','舌苔颜色减淡','口腔细菌减少']},
+      {time:14*DAY,  pct:75, title:'口气明显清新',   benefits:['口腔异味基本消除','唾液分泌恢复正常','口干舌燥减少']},
+      {time:30*DAY,  pct:100,title:'口气完全清新',   benefits:['口气达到健康水平','与人交流不再尴尬','口腔自净能力恢复']},
+    ]
+  },
+  { id:'wrinkles', name:'抗皱', emoji:'🌸',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:15, title:'皱纹加深减缓',   benefits:['新皱纹形成速度减慢','胶原流失减少','皮肤弹性提升']},
+      {time:180*DAY, pct:55, title:'细纹改善',       benefits:['眼角细纹变浅','法令纹减轻','皮肤紧致度提升']},
+      {time:YEAR,    pct:100,title:'抗衰效果显著',   benefits:['皱纹老化速度恢复正常','面部年轻态明显','胶原蛋白持续生成']},
+    ]
+  },
+];
+
+const ORGAN_CATEGORIES_MENTAL = [
+  { id:'anxiety', name:'焦虑', emoji:'😟',
+    milestones:[
+      {time:0, pct:0},
+      {time:7*DAY,   pct:25, title:'急性焦虑缓解',     benefits:['戒断期焦虑减弱','心慌感减少','烦躁次数降低']},
+      {time:30*DAY,  pct:55, title:'焦虑感稳步下降',   benefits:['情绪波动减少','整体心境平和','焦虑发作频率降低']},
+      {time:90*DAY,  pct:100,title:'焦虑水平正常化',   benefits:['焦虑水平接近非吸烟者','对压力反应正常','心理状态稳定']},
+    ]
+  },
+  { id:'mood', name:'情绪', emoji:'🌈',
+    milestones:[
+      {time:0, pct:0},
+      {time:14*DAY,  pct:30, title:'情绪开始平稳',     benefits:['情绪起伏减少','正面情绪增多','易怒情况减轻']},
+      {time:60*DAY,  pct:70, title:'情绪状态良好',     benefits:['抑郁感明显减轻','内心愉悦感提升','情绪管理能力增强']},
+      {time:180*DAY, pct:100,title:'情绪完全健康',     benefits:['情绪稳定有韧性','幸福感持续提升','心境如常人']},
+    ]
+  },
+  { id:'focus', name:'专注力', emoji:'🎯',
+    milestones:[
+      {time:0, pct:0},
+      {time:7*DAY,   pct:20, title:'专注度初步恢复',   benefits:['注意力分散减少','工作效率提升','思维更清晰']},
+      {time:60*DAY,  pct:60, title:'专注能力明显增强', benefits:['长时间专注成为可能','工作学习效率大幅提升','深度思考能力增强']},
+      {time:180*DAY, pct:100,title:'专注力完全恢复',   benefits:['专注水平接近非吸烟者','心流状态更容易进入','注意力持续性强']},
+    ]
+  },
+  { id:'memory', name:'记忆力', emoji:'🧩',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:25, title:'短期记忆改善',     benefits:['日常记忆力提升','信息留存时间延长','遗忘现象减少']},
+      {time:90*DAY,  pct:60, title:'记忆能力增强',     benefits:['学习能力提升','工作记忆更可靠','信息处理速度加快']},
+      {time:YEAR,    pct:100,title:'记忆力完全恢复',   benefits:['记忆力达到健康水平','痴呆风险大幅降低','认知功能整体提升']},
+    ]
+  },
+  { id:'stress', name:'压力应对', emoji:'🧘',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:30, title:'压力反应减弱',     benefits:['压力感知阈值提升','应激反应减少','放松能力增强']},
+      {time:90*DAY,  pct:70, title:'压力管理能力增强', benefits:['压力下决策更冷静','身体应激反应正常化','面对挑战更自信']},
+      {time:180*DAY, pct:100,title:'压力应对完全健康', benefits:['压力承受能力强','恢复力快速','心理韧性达到最佳']},
+    ]
+  },
+  { id:'sleep', name:'睡眠', emoji:'😴',
+    milestones:[
+      {time:0, pct:0},
+      {time:7*DAY,   pct:20, title:'入睡速度改善',     benefits:['入睡时间缩短','夜醒次数减少','睡眠节律开始恢复']},
+      {time:30*DAY,  pct:55, title:'深度睡眠增加',     benefits:['深睡眠时长延长','梦境质量改善','早晨精力充沛']},
+      {time:90*DAY,  pct:100,title:'睡眠质量完全恢复', benefits:['睡眠效率达到最佳','睡眠呼吸正常','整夜睡眠不被打断']},
+    ]
+  },
+  { id:'resilience', name:'心理韧性', emoji:'⛰️',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:30, title:'戒断挫败减少',     benefits:['复吸冲动减弱','自我控制能力提升','应对挫折更从容']},
+      {time:90*DAY,  pct:70, title:'心理韧性增强',     benefits:['面对困难更坚定','心态调整能力强','自我效能感提升']},
+      {time:180*DAY, pct:100,title:'抗压能力达到最佳', benefits:['抗压能力优于多数人','逆境中保持稳定','长期目标执行力强']},
+    ]
+  },
+  { id:'cravings', name:'戒断症状', emoji:'🛡️',
+    milestones:[
+      {time:0, pct:0},
+      {time:3*DAY,   pct:30, title:'急性戒断高峰过去', benefits:['强烈渴望开始减少','身体不适感减轻','睡眠紊乱缓解']},
+      {time:14*DAY,  pct:60, title:'戒断症状大幅缓解', benefits:['每日烟瘾发作减少','身体已基本适应','情绪波动减小']},
+      {time:90*DAY,  pct:100,title:'戒断症状完全消失', benefits:['不再感到对香烟的渴望','看到吸烟场景无反应','身心彻底独立']},
+    ]
+  },
+];
+
+const ORGAN_CATEGORIES_MALE = [
+  { id:'testosterone', name:'睾酮', emoji:'🔥',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:25, title:'睾酮分泌恢复',     benefits:['尼古丁对睾酮的抑制解除','晨勃情况改善','活力开始提升']},
+      {time:90*DAY,  pct:60, title:'睾酮水平明显上升', benefits:['性欲明显提升','肌肉合成能力增强','整体阳刚气质恢复']},
+      {time:180*DAY, pct:100,title:'睾酮恢复最佳水平', benefits:['睾酮达到健康同龄水平','体能状态全面提升','男性特征更明显']},
+    ]
+  },
+  { id:'virility', name:'性功能', emoji:'💖',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:20, title:'血流改善初见效',   benefits:['末梢血液循环改善','晨勃质量提升','勃起硬度初步恢复']},
+      {time:90*DAY,  pct:60, title:'性功能明显增强',   benefits:['勃起更持久有力','性体验质量提升','性生活信心恢复']},
+      {time:YEAR,    pct:100,title:'性功能完全恢复',   benefits:['性功能达到健康水平','ED风险大幅降低','整体性满足感最佳']},
+    ]
+  },
+  { id:'sperm', name:'精子质量', emoji:'🧬',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:20, title:'精子损伤减少',     benefits:['新生精子DNA损伤降低','精子畸形率开始下降','睾丸生精环境改善']},
+      {time:90*DAY,  pct:65, title:'精子质量明显改善', benefits:['精子活力大幅提升','精子数量增加','正常形态精子比例提高']},
+      {time:180*DAY, pct:100,title:'精子完全健康',     benefits:['精子质量接近非吸烟者','受孕几率显著提升','胎儿健康风险降低']},
+    ]
+  },
+  { id:'restingHR', name:'静息心率', emoji:'💓',
+    milestones:[
+      {time:0, pct:0},
+      {time:DAY,     pct:30, title:'心率开始下降',     benefits:['尼古丁的兴奋作用消除','静息心率每分钟减少5-10次','心脏负担减轻']},
+      {time:30*DAY,  pct:70, title:'心率明显改善',     benefits:['静息心率稳定在健康范围','心率变异性提升','心脏更高效']},
+      {time:90*DAY,  pct:100,title:'心率完全正常化',   benefits:['静息心率达到最佳水平','心脏储备能力强','长寿指标显著改善']},
+    ]
+  },
+  { id:'muscle', name:'肌肉力量', emoji:'🏋️',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:25, title:'肌肉供氧改善',     benefits:['运动时不再快速气喘','肌肉酸痛减少','力量训练效果提升']},
+      {time:90*DAY,  pct:65, title:'肌肉力量增强',     benefits:['绝对力量明显提升','肌肉耐力增加','训练后恢复更快']},
+      {time:180*DAY, pct:100,title:'肌肉表现达到最佳', benefits:['力量水平接近非吸烟者','肌肉合成效率高','整体运动能力强']},
+    ]
+  },
+  { id:'endurance', name:'运动耐力', emoji:'🏃',
+    milestones:[
+      {time:0, pct:0},
+      {time:14*DAY,  pct:20, title:'有氧能力初步提升', benefits:['爬楼不再气喘','心肺耐力开始改善','短跑耐力增强']},
+      {time:90*DAY,  pct:65, title:'耐力大幅提升',     benefits:['长距离跑步更轻松','VO2 max指标改善','运动恢复时间缩短']},
+      {time:180*DAY, pct:100,title:'耐力达到最佳水平', benefits:['有氧耐力达健康标准','运动表现优于多数人','整体活力旺盛']},
+    ]
+  },
+  { id:'bp', name:'血压', emoji:'🩺',
+    milestones:[
+      {time:0, pct:0},
+      {time:20*MIN,  pct:20, title:'血压立即下降',     benefits:['尼古丁引起的血管收缩解除','收缩压立刻下降','心脏后负荷减轻']},
+      {time:30*DAY,  pct:60, title:'血压稳定改善',     benefits:['静息血压稳定在健康范围','高血压风险显著降低','血管弹性恢复']},
+      {time:YEAR,    pct:100,title:'血压完全正常',     benefits:['血压达到非吸烟者水平','中风风险大幅降低','心血管寿命延长']},
+    ]
+  },
+  { id:'endocrine', name:'内分泌', emoji:'⚖️',
+    milestones:[
+      {time:0, pct:0},
+      {time:30*DAY,  pct:25, title:'激素紊乱缓解',     benefits:['皮质醇水平开始正常','胰岛素敏感性改善','甲状腺功能稳定']},
+      {time:90*DAY,  pct:65, title:'内分泌系统恢复',   benefits:['多种激素水平正常化','代谢率稳定','整体精力提升']},
+      {time:180*DAY, pct:100,title:'内分泌完全平衡',   benefits:['激素水平达到最佳','代谢综合征风险降低','整体生理状态最优']},
+    ]
+  },
+];
+
+const ORGAN_CATEGORIES = {
+  core:   { id:'core',   name:'核心',   organs: ORGAN_CATEGORIES_CORE },
+  beauty: { id:'beauty', name:'美容',   organs: ORGAN_CATEGORIES_BEAUTY },
+  mental: { id:'mental', name:'心理',   organs: ORGAN_CATEGORIES_MENTAL },
+  male:   { id:'male',   name:'男性',   organs: ORGAN_CATEGORIES_MALE },
+};
+
+let currentCategoryId = 'core';
+let ORGANS = ORGAN_CATEGORIES[currentCategoryId].organs;
 
 // Organ button positions (top%, left%) — center of each button.
 // With margin-left:-7.5% / margin-top:-7.5% and width/height:15%,
@@ -490,19 +704,32 @@ function updateDailyQuote(totalDay) {
 // ─── Recovery map ─────────────────────────────────────────────
 let selectedOrganId = null;
 
+// Positions of 8 organs along a circle (r=34%) around center 50%/50%, evenly distributed at 45°.
+const CIRCLE_POSITIONS = [
+  {top:'19%', left:'37%'},  // slot 0 — top-left
+  {top:'19%', left:'63%'},  // slot 1 — top-right
+  {top:'37%', left:'81%'},  // slot 2 — right-upper
+  {top:'63%', left:'81%'},  // slot 3 — right-lower
+  {top:'81%', left:'63%'},  // slot 4 — bottom-right
+  {top:'81%', left:'37%'},  // slot 5 — bottom-left
+  {top:'63%', left:'19%'},  // slot 6 — left-lower
+  {top:'37%', left:'19%'},  // slot 7 — left-upper
+];
+
 function buildConstellation() {
   const container = document.getElementById('organ-list') || document.getElementById('constellation');
-  if (!container || container.dataset.built === '1') return;
-  container.dataset.built = '1';
+  if (!container) return;
+  container.innerHTML = '';
   ORGANS.forEach((organ, i) => {
-    const pos = ORGAN_ATLAS_POSITIONS[organ.id] || ORGAN_POSITIONS[i];
+    const pos = ORGAN_ATLAS_POSITIONS[organ.id] || CIRCLE_POSITIONS[i % 8];
     const btn = document.createElement('button');
     btn.className = 'organ-btn';
     btn.id = `obtn-${organ.id}`;
     btn.style.top = pos.top;
     btn.style.left = pos.left;
+    const iconHtml = ORGAN_ICONS[organ.id] || `<span class="organ-emoji">${organ.emoji || organ.name.slice(0, 1)}</span>`;
     btn.innerHTML = `
-      <span class="organ-mark">${ORGAN_ICONS[organ.id] || organ.name.slice(0, 1)}</span>
+      <span class="organ-mark">${iconHtml}</span>
       <span class="organ-name-mini">${organ.name}</span>
       <span class="organ-pct-mini" id="opct-${organ.id}">--</span>
     `;
@@ -510,7 +737,19 @@ function buildConstellation() {
     container.appendChild(btn);
   });
   updateOrganList();
-  if (!selectedOrganId) selectOrgan('heart');
+  const first = ORGANS[0]?.id;
+  if (first) selectOrgan(first);
+}
+
+function switchOrganCategory(catId) {
+  if (!ORGAN_CATEGORIES[catId] || catId === currentCategoryId) return;
+  currentCategoryId = catId;
+  ORGANS = ORGAN_CATEGORIES[catId].organs;
+  selectedOrganId = null;
+  document.querySelectorAll('.organ-cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === catId);
+  });
+  buildConstellation();
 }
 
 function updateOrganList() {
@@ -557,7 +796,7 @@ function updateCenterDisplay(id, elapsed) {
   const col   = organColor(organ, pct);
 
   const centerIcon = document.getElementById('cc-emoji');
-  const centerIconSvg = ORGAN_ICONS[organ.id] || organ.emoji;
+  const centerIconSvg = ORGAN_ICONS[organ.id] || `<span class="center-emoji">${organ.emoji || ''}</span>`;
   centerIcon.innerHTML = `
     <span class="center-icon-base">${centerIconSvg}</span>
     <span class="center-icon-fill" id="center-icon-fill">${centerIconSvg}</span>
@@ -599,7 +838,7 @@ function updateInfoPanel(id, elapsed) {
   content.style.display = 'block';
 
   const iconEl = document.getElementById('oip-emoji');
-  iconEl.innerHTML = ORGAN_ICONS[organ.id] || organ.emoji;
+  iconEl.innerHTML = ORGAN_ICONS[organ.id] || `<span class="organ-emoji" style="font-size:26px;filter:none">${organ.emoji || ''}</span>`;
   iconEl.style.color = col;
   iconEl.style.background = col + '14';
   iconEl.style.borderColor = col + '28';

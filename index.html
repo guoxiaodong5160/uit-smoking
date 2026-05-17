@@ -358,6 +358,57 @@
     .oip-benefit-row { font-size: 12px; color: var(--text2); padding: 3px 0; display: flex; align-items: flex-start; gap: 6px; }
     .oip-benefit-row::before { content: '•'; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 
+    /* Category switcher */
+    .organ-cat-switch {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      padding: 4px;
+      margin: 0 0 14px;
+      background: rgba(15, 38, 30, 0.05);
+      border: 1px solid rgba(15, 38, 30, 0.06);
+      border-radius: 14px;
+    }
+    .organ-cat-btn {
+      min-height: 36px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: #7a8f88;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .organ-cat-btn:active { transform: scale(0.97); }
+    .organ-cat-btn.active {
+      background: #ffffff;
+      color: var(--teal);
+      box-shadow: 0 2px 6px rgba(15, 38, 30, 0.08), inset 0 0 0 1px rgba(11, 136, 112, 0.10);
+    }
+
+    /* Emoji fallback inside organ-mark */
+    .organ-emoji {
+      font-size: 30px;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18)) saturate(1.05);
+    }
+    /* Emoji fallback inside center display */
+    .center-emoji {
+      font-size: 78px;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.20)) saturate(1.05);
+    }
+    .oip-emoji .center-emoji,
+    .oip-emoji .organ-emoji { font-size: 28px; filter: none; }
+
     /* Organ constellation */
     .constellation-wrap {
       position: relative;
@@ -1384,6 +1435,14 @@
         </div>
       </div>
 
+      <!-- Category switcher -->
+      <div class="organ-cat-switch" role="tablist" aria-label="恢复分类">
+        <button class="organ-cat-btn active" data-cat="core"   onclick="switchOrganCategory('core')"   type="button">核心</button>
+        <button class="organ-cat-btn"        data-cat="beauty" onclick="switchOrganCategory('beauty')" type="button">美容</button>
+        <button class="organ-cat-btn"        data-cat="mental" onclick="switchOrganCategory('mental')" type="button">心理</button>
+        <button class="organ-cat-btn"        data-cat="male"   onclick="switchOrganCategory('male')"   type="button">男性</button>
+      </div>
+
       <!-- Recovery map -->
       <div class="constellation-wrap" id="constellation">
         <div class="organ-map-head">
@@ -1706,7 +1765,7 @@
   </div>
 </div>
 
-<script src="app.js?v=51"></script>
+<script src="app.js?v=52"></script>
 <script>
   (function() {
     try {
