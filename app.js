@@ -104,14 +104,14 @@ const ORGAN_POSITIONS = [
 ];
 
 const ORGAN_ATLAS_POSITIONS = {
-  heart:   {top:'12%', left:'29%'},
-  lung:    {top:'12%', left:'58%'},
-  blood:   {top:'36%', left:'8%'},
-  brain:   {top:'36%', left:'76%'},
-  sense:   {top:'60%', left:'8%'},
-  skin:    {top:'60%', left:'76%'},
-  stamina: {top:'78%', left:'30%'},
-  immune:  {top:'78%', left:'57%'},
+  heart:   {top:'14%', left:'34%'},
+  lung:    {top:'14%', left:'66%'},
+  blood:   {top:'38%', left:'14%'},
+  brain:   {top:'38%', left:'86%'},
+  sense:   {top:'62%', left:'14%'},
+  skin:    {top:'62%', left:'86%'},
+  stamina: {top:'86%', left:'34%'},
+  immune:  {top:'86%', left:'66%'},
 };
 
 const ORGAN_ICONS = {
