@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>戒烟助手 App 产品原型 v4</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #eef4f1;
+      --phone: #f8fbf9;
+      --card: #ffffff;
+      --ink: #13211d;
+      --sub: #5f716a;
+      --muted: #8a9993;
+      --line: #dce8e2;
+      --primary: #0b725f;
+      --primary-2: #14a083;
+      --primary-soft: #e1f5ee;
+      --blue: #3167d7;
+      --orange: #c98219;
+      --danger: #d85842;
+      --purple: #725ac8;
+      --shadow-phone: 0 26px 70px rgba(19, 33, 29, .16);
+      --shadow-card: 0 10px 28px rgba(19, 33, 29, .06);
+      --radius: 22px;
+    }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(20,160,131,.18), transparent 28%),
+        radial-gradient(circle at 82% 10%, rgba(49,103,215,.12), transparent 30%),
+        linear-gradient(180deg, #f9fbfa 0%, var(--bg) 100%);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-feature-settings: "tnum";
+    }
+    .topbar {
+      position: fixed;
+      z-index: 20;
+      inset: 0 0 auto;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 28px;
+      border-bottom: 1px solid rgba(220,232,226,.9);
+      background: rgba(249,251,250,.88);
+      backdrop-filter: blur(18px);
+    }
+    .topbar b { font-size: 15px; }
+    .topbar span { color: var(--sub); font-size: 13px; font-weight: 650; }
+    .board {
+      width: max-content;
+      min-height: 100vh;
+      padding: 92px 64px 64px;
+      display: flex;
+      gap: 34px;
+      align-items: flex-start;
+    }
+    .phone, .brief {
+      flex: 0 0 auto;
+      background: var(--phone);
+      border: 1px solid rgba(220,232,226,.96);
+      box-shadow: var(--shadow-phone);
+    }
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      overflow: hidden;
+      border-radius: 30px;
+    }
+    .brief {
+      order: 20;
+      width: 540px;
+      min-height: 844px;
+      border-radius: 30px;
+      padding: 40px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    .brief h1 { font-size: 32px; line-height: 1.18; letter-spacing: 0; }
+    .brief p { margin-top: 15px; color: var(--sub); font-size: 16px; line-height: 1.78; }
+    .brief h2 { margin-top: 34px; font-size: 18px; }
+    .principles { display: grid; gap: 12px; margin-top: 18px; }
+    .principle {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 14px;
+      padding: 15px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .principle i {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-style: normal;
+      font-weight: 950;
+    }
+    .principle b { display: block; font-size: 15px; }
+    .principle span { display: block; margin-top: 5px; color: var(--sub); font-size: 13px; line-height: 1.45; }
+    .palette { display: flex; gap: 12px; margin-top: 18px; }
+    .swatch { width: 62px; }
+    .color { width: 62px; height: 62px; border-radius: 16px; border: 1px solid rgba(19,33,29,.08); }
+    .swatch small { display: block; margin-top: 8px; color: var(--sub); font-size: 11px; font-weight: 750; }
+
+    .camera {
+      position: absolute;
+      z-index: 3;
+      top: 14px; left: 168px;
+      width: 54px; height: 18px;
+      border-radius: 99px;
+      background: #101816;
+    }
+    .status {
+      height: 42px;
+      padding: 14px 24px 0;
+      font-size: 13px;
+      font-weight: 850;
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px 22px 0;
+    }
+    .title { font-size: 24px; font-weight: 950; letter-spacing: 0; }
+    .subtitle { margin-top: 5px; color: var(--sub); font-size: 12px; font-weight: 650; }
+    .pill {
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .tabbar {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 88px;
+      padding: 10px 14px 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: rgba(255,255,255,.94);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -10px 30px rgba(19,33,29,.06);
+    }
+    .tab {
+      height: 50px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+    }
+    .tab.active { background: var(--primary-soft); color: var(--primary); }
+
+    .intro-art {
+      margin: 26px auto 0;
+      width: 252px;
+      height: 252px;
+      border-radius: 54px;
+      background:
+        radial-gradient(circle at 50% 38%, rgba(255,255,255,.96), transparent 31%),
+        radial-gradient(circle at 64% 72%, rgba(49,103,215,.12), transparent 32%),
+        linear-gradient(145deg, #dff5ee, #f9fcfa);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-card);
+      display: grid;
+      place-items: center;
+    }
+    .breath-mark {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 13px solid #d6efe5;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      color: var(--primary);
+      font-size: 46px;
+      font-weight: 950;
+      box-shadow: inset 0 0 0 1px rgba(11,114,95,.08);
+    }
+    .intro-copy { padding: 34px 36px 0; text-align: center; }
+    .intro-copy h2 { font-size: 27px; line-height: 1.22; }
+    .intro-copy p { margin-top: 13px; color: var(--sub); font-size: 15px; line-height: 1.7; font-weight: 650; }
+    .field {
+      margin: 26px 32px 0;
+      height: 58px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      color: var(--primary);
+      font-size: 15px;
+      font-weight: 900;
+    }
+    .primary-btn {
+      position: absolute;
+      left: 32px; right: 32px; bottom: 64px;
+      height: 58px;
+      border-radius: 18px;
+      background: var(--primary);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 14px 30px rgba(11,114,95,.22);
+      font-size: 16px;
+      font-weight: 950;
+    }
+    .steps {
+      position: absolute;
+      left: 132px; bottom: 144px;
+      width: 126px; height: 8px;
+      border-radius: 99px;
+      background: #d9e6df;
+      overflow: hidden;
+    }
+    .steps div { height: 100%; width: 42%; border-radius: inherit; background: var(--primary); }
+
+    .hero {
+      position: relative;
+      margin: 22px 20px 0;
+      height: 238px;
+      padding: 22px;
+      overflow: hidden;
+      color: white;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 78% 22%, rgba(255,255,255,.22), transparent 24%),
+        linear-gradient(145deg, #064c3f 0%, #0b725f 55%, #14a083 100%);
+      box-shadow: 0 18px 38px rgba(11,114,95,.25);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -34px; bottom: -54px;
+      width: 184px; height: 184px;
+      border-radius: 50%;
+      border: 24px solid rgba(255,255,255,.08);
+    }
+    .hero-top {
+      position: relative; z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      color: #c8efe5;
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .hero-days {
+      position: relative; z-index: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 28px;
+    }
+    .hero-days b { font-size: 82px; line-height: .86; }
+    .hero-days span { color: #d8fff5; font-size: 22px; font-weight: 900; }
+    .hero-time { position: relative; z-index: 1; margin-top: 12px; color: #effffb; font-size: 17px; font-weight: 900; }
+    .hero-since { position: relative; z-index: 1; margin-top: 6px; color: rgba(236,255,248,.68); font-size: 11px; font-weight: 650; }
+    .progress { height: 8px; border-radius: 99px; background: rgba(255,255,255,.24); overflow: hidden; }
+    .progress div { height: 100%; border-radius: inherit; background: currentColor; }
+    .hero .progress { position: relative; z-index: 1; margin-top: 20px; color: #fff; }
+    .hero-next { position: relative; z-index: 1; margin-top: 8px; color: rgba(236,255,248,.82); font-size: 11px; font-weight: 800; }
+    .insight-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 16px 20px 0;
+    }
+    .insight {
+      min-height: 96px;
+      padding: 14px;
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-card);
+    }
+    .insight small { display: block; color: var(--muted); font-size: 11px; font-weight: 850; }
+    .insight b { display: block; margin-top: 9px; font-size: 22px; color: var(--c); }
+    .insight span { display: block; margin-top: 4px; color: var(--sub); font-size: 11px; font-weight: 650; }
+    .timeline-card {
+      margin: 12px 20px 0;
+      padding: 15px 16px;
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-card);
+    }
+    .timeline-card small { color: var(--muted); font-size: 12px; font-weight: 850; }
+    .timeline-card b { display: block; margin-top: 7px; font-size: 15px; }
+    .quote {
+      margin: 12px 20px 0;
+      padding: 14px 18px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #e4f6ef, #f8fcfa);
+      color: var(--primary);
+      border: 1px solid #cfe8dd;
+      text-align: center;
+      line-height: 1.55;
+      font-size: 14px;
+      font-weight: 850;
+    }
+    .sos {
+      position: absolute;
+      left: 20px; right: 20px; bottom: 92px;
+      height: 56px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #e36449, #c94432);
+      color: #fff;
+      box-shadow: 0 14px 30px rgba(216,88,66,.26);
+      font-size: 15px;
+      font-weight: 950;
+    }
+    .sos i {
+      width: 28px; height: 28px;
+      border-radius: 9px;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,.18);
+      font-style: normal;
+    }
+
+    .organ-summary {
+      margin: 18px 20px 0;
+      padding: 16px;
+      height: 128px;
+      border-radius: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-card);
+    }
+    .organ-top { display: flex; align-items: center; gap: 14px; }
+    .organ-main-icon {
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      display: grid; place-items: center;
+      color: var(--danger);
+      background: #fff0ec;
+    }
+    .organ-main-icon svg { width: 34px; height: 34px; display: block; }
+    .organ-meta { flex: 1; }
+    .organ-meta b { display: block; font-size: 18px; }
+    .organ-meta span { display: block; margin-top: 5px; color: var(--danger); font-size: 13px; font-weight: 850; }
+    .organ-pct { color: var(--danger); font-size: 25px; font-weight: 950; }
+    .organ-summary .progress { margin-top: 14px; background: #edf1ee; color: var(--danger); }
+    .body-map {
+      position: relative;
+      margin: 12px 20px 0;
+      height: 418px;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(11,114,95,.16), transparent 34%),
+        radial-gradient(circle at 50% 78%, rgba(49,103,215,.08), transparent 30%),
+        linear-gradient(180deg, #fbfcf7 0%, #eef4ef 100%);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+    .body-title {
+      position: absolute;
+      z-index: 6;
+      left: 18px; top: 16px;
+      color: var(--sub);
+      font-size: 11px;
+      font-weight: 850;
+    }
+    .body-shape {
+      position: absolute;
+      z-index: 1;
+      left: 50%; top: 52%;
+      width: 200px; height: 340px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .body-head {
+      position: absolute;
+      left: 50%; top: 0;
+      width: 62px; height: 62px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: rgba(255,255,255,.36);
+      border: 1px solid rgba(82,109,100,.15);
+    }
+    .body-torso {
+      position: absolute;
+      left: 50%; top: 70px;
+      width: 142px; height: 228px;
+      transform: translateX(-50%);
+      border-radius: 64px 64px 48px 48px;
+      background:
+        radial-gradient(circle at 50% 24%, rgba(11,114,95,.10), transparent 38%),
+        linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.13));
+      border: 1px solid rgba(82,109,100,.16);
+      box-shadow: inset 0 0 44px rgba(11,114,95,.06);
+    }
+    .body-shoulder {
+      position: absolute;
+      left: 50%; top: 104px;
+      width: 190px; height: 74px;
+      transform: translateX(-50%);
+      border-radius: 56px 56px 30px 30px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(82,109,100,.10);
+    }
+    .organ {
+      position: absolute;
+      z-index: 5;
+      width: 76px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--c);
+      font-weight: 950;
+    }
+    .organ::before {
+      content: "";
+      position: absolute;
+      top: 2px; left: 50%;
+      width: 66px; height: 66px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--c) 24%, transparent), transparent 62%);
+      filter: blur(2px);
+      opacity: .88;
+    }
+    .organ svg {
+      position: relative;
+      z-index: 1;
+      width: 52px; height: 52px;
+      display: block;
+      filter:
+        drop-shadow(0 1px 0 rgba(255,255,255,.46))
+        drop-shadow(0 8px 12px rgba(19,33,29,.22));
+    }
+    .organ small {
+      position: relative;
+      z-index: 1;
+      margin-top: 5px;
+      color: color-mix(in srgb, var(--c) 76%, #25332f);
+      font-size: 9px;
+      line-height: 1;
+      font-weight: 850;
+      text-shadow: 0 1px 0 rgba(255,255,255,.85), 0 3px 8px rgba(19,33,29,.10);
+    }
+    .organ em {
+      position: relative;
+      z-index: 1;
+      margin-top: 3px;
+      font-style: normal;
+      font-size: 10px;
+      line-height: 1;
+      text-shadow: 0 1px 0 rgba(255,255,255,.85);
+    }
+    .organ.featured svg { width: 64px; height: 64px; }
+    .organ.featured::before { width: 82px; height: 82px; }
+    .benefits {
+      margin: 10px 20px 0;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--sub);
+      line-height: 1.6;
+      font-size: 12px;
+      font-weight: 650;
+      box-shadow: var(--shadow-card);
+    }
+
+    .rescue-bg {
+      position: absolute;
+      inset: 42px 0 0;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(216,88,66,.18), transparent 34%),
+        linear-gradient(180deg, #fbf8f6, #f2efea);
+    }
+    .rescue-content {
+      position: relative;
+      z-index: 1;
+      padding-top: 22px;
+      text-align: center;
+    }
+    .rescue-title { font-size: 30px; font-weight: 950; }
+    .rescue-copy {
+      width: 292px;
+      margin: 12px auto 0;
+      color: var(--sub);
+      font-size: 15px;
+      line-height: 1.65;
+      font-weight: 650;
+    }
+    .breath-orbit {
+      position: relative;
+      width: 236px; height: 236px;
+      margin: 62px auto 0;
+      border-radius: 50%;
+      background: #ffe8e2;
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 0 1px rgba(216,88,66,.08);
+    }
+    .breath-orbit::before {
+      content: "";
+      position: absolute;
+      inset: 20px;
+      border-radius: 50%;
+      border: 1px solid rgba(216,88,66,.16);
+    }
+    .breath-circle {
+      width: 166px; height: 166px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #e36449, #c94432);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      box-shadow: 0 20px 46px rgba(216,88,66,.25);
+    }
+    .breath-circle span { color: #ffe1dc; font-size: 22px; font-weight: 950; }
+    .breath-circle b { font-size: 58px; line-height: .95; }
+    .rounds { margin-top: 34px; color: var(--sub); font-size: 14px; font-weight: 900; }
+    .breath-steps { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+    .breath-steps span { width: 54px; height: 8px; border-radius: 99px; background: #ead8d3; }
+    .breath-steps span:first-child { background: var(--danger); }
+    .secondary-btn {
+      position: absolute;
+      left: 54px; right: 54px; bottom: 138px;
+      height: 52px;
+      border-radius: 17px;
+      display: grid; place-items: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--sub);
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: var(--shadow-card);
+    }
+
+    .achievement-head {
+      margin: 22px 20px 0;
+      height: 112px;
+      padding: 22px;
+      border-radius: 24px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 84% 18%, rgba(255,255,255,.18), transparent 26%),
+        linear-gradient(135deg, var(--primary), #0f9173);
+      box-shadow: 0 16px 34px rgba(11,114,95,.20);
+    }
+    .achievement-head b { display: block; font-size: 27px; }
+    .achievement-head span { display: block; margin-top: 8px; color: #c7efe3; font-size: 13px; font-weight: 850; }
+    .badge-grid {
+      padding: 18px 20px 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .badge {
+      height: 98px;
+      border-radius: 18px;
+      padding: 13px 8px;
+      background: #fff;
+      border: 1px solid #c9e8dc;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+    }
+    .badge.locked { background: #eef3f0; border-color: #dce5e0; color: #8d9a95; box-shadow: none; }
+    .badge i {
+      width: 34px; height: 34px;
+      margin: 0 auto 10px;
+      border-radius: 12px;
+      display: grid; place-items: center;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-style: normal;
+      font-weight: 950;
+    }
+    .badge.locked i { background: #dfe8e3; color: #96a29d; }
+    .badge b { display: block; font-size: 12px; }
+    .badge span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; font-weight: 750; }
+
+    .setting-hero {
+      margin: 22px 20px 0;
+      padding: 18px;
+      border-radius: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .appmark {
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      background: var(--primary);
+      color: #fff;
+      display: grid; place-items: center;
+      font-size: 20px;
+      font-weight: 950;
+    }
+    .setting-hero b { display: block; font-size: 17px; }
+    .setting-hero span { display: block; margin-top: 5px; color: var(--sub); font-size: 12px; font-weight: 650; }
+    .group-label {
+      margin: 24px 22px 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: .06em;
+    }
+    .setting-row {
+      margin: 0 20px;
+      min-height: 64px;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-bottom: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .setting-row.first { border-radius: 18px 18px 0 0; }
+    .setting-row.last { border-radius: 0 0 18px 18px; border-bottom: 1px solid var(--line); }
+    .setting-row.single { border-radius: 18px; border-bottom: 1px solid var(--line); }
+    .set-icon {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--c) 13%, white);
+      color: var(--c);
+      font-style: normal;
+      font-weight: 950;
+    }
+    .setting-row b { flex: 1; font-size: 14px; }
+    .setting-row span { color: var(--c); font-size: 14px; font-weight: 900; }
+    .save {
+      margin: 24px 20px 0;
+      height: 54px;
+      border-radius: 18px;
+      display: grid; place-items: center;
+      background: var(--primary);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 950;
+      box-shadow: 0 14px 30px rgba(11,114,95,.20);
+    }
+    .reset {
+      margin: 12px 20px 0;
+      height: 50px;
+      border-radius: 17px;
+      display: grid; place-items: center;
+      background: #fff1ee;
+      border: 1px solid #efc3b8;
+      color: #c94432;
+      font-size: 14px;
+      font-weight: 900;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <b>戒烟助手 App 产品原型 v4</b>
+    <span>重构版：围绕每日坚持、身体恢复和烟瘾急救设计</span>
+  </div>
+
+  <main class="board">
+    <section class="brief">
+      <h1>戒烟助手 v4</h1>
+      <p>产品定位从“统计工具”升级为“戒烟陪伴系统”：每天打开先获得确定的正反馈，想抽烟时进入急救流程，长期用身体恢复和成就体系建立持续动机。</p>
+      <h2>本版设计策略</h2>
+      <div class="principles">
+        <div class="principle"><i>1</i><div><b>首屏只讲一件事</b><span>你已经坚持了多久。其余数据降级为支撑成就感的证据。</span></div></div>
+        <div class="principle"><i>2</i><div><b>恢复页从 UI 图标变成身体图谱</b><span>半透明人体轮廓承载器官位置，让用户感到身体真的在修复。</span></div></div>
+        <div class="principle"><i>3</i><div><b>SOS 独立成急救场景</b><span>烟瘾来了不讲道理，直接进入呼吸节奏和轮次反馈。</span></div></div>
+        <div class="principle"><i>4</i><div><b>成就降低游戏感</b><span>徽章服务于长期坚持，不做过度刺激的游戏化。</span></div></div>
+      </div>
+      <h2>视觉语言</h2>
+      <div class="palette">
+        <div class="swatch"><div class="color" style="background:#0b725f"></div><small>主色</small></div>
+        <div class="swatch"><div class="color" style="background:#e1f5ee"></div><small>浅绿</small></div>
+        <div class="swatch"><div class="color" style="background:#3167d7"></div><small>数据</small></div>
+        <div class="swatch"><div class="color" style="background:#d85842"></div><small>SOS</small></div>
+        <div class="swatch"><div class="color" style="background:#ffffff"></div><small>卡片</small></div>
+      </div>
+    </section>
+
+    <section class="phone">
+      <div class="camera"></div>
+      <div class="status">9:41</div>
+      <div class="intro-art"><div class="breath-mark">戒</div></div>
+      <div class="intro-copy">
+        <h2>从这一刻开始，把呼吸还给自己</h2>
+        <p>设置戒烟时间后，健康恢复、少抽香烟、节省金额和成就都会自动计算。</p>
+      </div>
+      <div class="field"><span>2026年05月06日 09:00</span><b>日期</b></div>
+      <div class="steps"><div></div></div>
+      <div class="primary-btn">下一步</div>
+    </section>
+
+    <section class="phone">
+      <div class="camera"></div>
+      <div class="status">9:41</div>
+      <div class="head">
+        <div><div class="title">今天</div><div class="subtitle">每一秒都在恢复</div></div>
+        <div class="pill">第 45 天</div>
+      </div>
+      <div class="hero">
+        <div class="hero-top"><span>你已经戒烟</span><span>目标：90 天</span></div>
+        <div class="hero-days"><b>45</b><span>天</span></div>
+        <div class="hero-time">06 时 23 分 18 秒</div>
+        <div class="hero-since">自 2026-03-21 02:37 起</div>
+        <div class="progress"><div style="width:62%"></div></div>
+        <div class="hero-next">下一阶段：肺功能提升 30%</div>
+      </div>
+      <div class="insight-row">
+        <div class="insight" style="--c: var(--danger)"><small>少抽香烟</small><b>912支</b><span>焦油减少 91g</span></div>
+        <div class="insight" style="--c: var(--orange)"><small>节省金额</small><b>¥1,140</b><span>可作为奖励预算</span></div>
+        <div class="insight" style="--c: var(--primary)"><small>一氧化碳</small><b>已清除</b><span>血氧正在回升</span></div>
+        <div class="insight" style="--c: var(--blue)"><small>延长寿命</small><b>6.9天</b><span>按少抽支数估算</span></div>
+      </div>
+      <div class="timeline-card"><small>下一健康里程碑</small><b>距「肺功能提升 30%」还有 44天17小时</b></div>
+      <div class="quote">每一次深呼吸，都是身体在感谢你的选择。</div>
+      <div class="sos"><i>!</i> 烟瘾来了：开始 4-7-8 呼吸</div>
+      <nav class="tabbar"><div class="tab active">主页</div><div class="tab">恢复</div><div class="tab">成就</div><div class="tab">设置</div></nav>
+    </section>
+
+    <section class="phone">
+      <div class="camera"></div>
+      <div class="status">9:41</div>
+      <div class="head">
+        <div><div class="title">身体恢复</div><div class="subtitle">你的身体正在重新校准</div></div>
+        <div class="pill">8 项</div>
+      </div>
+      <div class="organ-summary">
+        <div class="organ-top">
+          <div class="organ-main-icon">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27S5 19.8 5 11.7C5 8.1 7.4 6 10.4 6c2.1 0 3.9 1.2 5.1 3.1C16.8 7.2 18.7 6 20.8 6 23.8 6 27 8.2 27 12.1 27 20 16 27 16 27Z" fill="currentColor"/><path d="M9 13.4h4l1.5-3.2 3 7 1.7-3.8H23" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" opacity=".82"/></svg>
+          </div>
+          <div class="organ-meta"><b>心脏</b><span>稳步恢复中</span></div>
+          <div class="organ-pct">35.4%</div>
+        </div>
+        <div class="progress"><div style="width:35%"></div></div>
+      </div>
+      <div class="body-map">
+        <div class="body-title">身体恢复图谱</div>
+        <div class="body-shape"><div class="body-head"></div><div class="body-shoulder"></div><div class="body-torso"></div></div>
+        <div class="organ" style="--c: var(--purple); left:138px; top:20px;">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12.2 7.7c1.4-2.4 5.1-2.4 6.5-.1 2.1-.8 4.8.5 5.3 3 .2.7.1 1.4-.1 2.1 2.2 1.1 3 4 1.8 6.1-.5.9-1.2 1.5-2.1 1.9.1 2.8-2.2 5.2-5.1 5.2-1 0-1.9-.3-2.6-.8-.8.6-1.8.9-2.9.9-2.9 0-5.1-2.3-5-5.1-1.6-.8-2.6-2.3-2.6-4.1 0-1.8 1-3.4 2.6-4.2-.5-2.5 1.4-4.9 4.2-4.9Z" fill="currentColor"/><path d="M15.9 7.2v17.3M11.5 11.3c1.8-.8 3.6-.1 4.4 1.5m.1 0c1-1.8 3.2-2.3 5-1.1m-10.8 4.6c2.1-.9 4.1-.3 5.2 1.3m.9 0c1.4-1.6 3.7-1.9 5.5-.5" fill="none" stroke="white" stroke-width="1.25" stroke-linecap="round" opacity=".70"/></svg>
+          <small>大脑</small><em>30%</em>
+        </div>
+        <div class="organ" style="--c:#159c88; left:244px; top:48px;">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M17.2 4.6c-3 2-4.5 5.1-4.5 9.1v5.4c0 2.3-1.3 4-3.5 5.1 1.2 1.4 3 2.2 5.5 2.2 4.3 0 7.4-2.6 7.4-6.8 0-2.8-1.4-4.6-4.1-5.6V5.3c0-.7-.4-1.1-.8-.7Z" fill="currentColor"/><path d="M17.5 10.2c2.8.1 5 2.1 5 5.1 0 1.9-.8 3.3-2.3 4.3m-6.7 3.1c2.9.4 5.4-.7 6.8-2.9" fill="none" stroke="white" stroke-width="1.45" stroke-linecap="round" opacity=".72"/></svg>
+          <small>嗅味觉</small><em>100%</em>
+        </div>
+        <div class="organ" style="--c:#dc8f96; left:90px; top:114px;">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M15.1 4.8v8.1c-1.4.7-2.5 1.7-3.3 3.2" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.9 4.8v8.1c1.4.7 2.5 1.7 3.3 3.2" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.1 11.4c-4.7 2.3-7.6 6.1-7.6 10.5 0 4.1 2.5 6.3 5.6 5.6 2.4-.5 3.1-2.4 3.1-5.1V12.5c0-.8-.5-1.4-1.1-1.1Z" fill="currentColor" opacity=".9"/><path d="M17.9 11.4c4.7 2.3 7.6 6.1 7.6 10.5 0 4.1-2.5 6.3-5.6 5.6-2.4-.5-3.1-2.4-3.1-5.1V12.5c0-.8.5-1.4 1.1-1.1Z" fill="currentColor" opacity=".74"/></svg>
+          <small>肺部</small><em>35%</em>
+        </div>
+        <div class="organ featured" style="--c: var(--danger); left:170px; top:142px;">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27S5 19.8 5 11.7C5 8.1 7.4 6 10.4 6c2.1 0 3.9 1.2 5.1 3.1C16.8 7.2 18.7 6 20.8 6 23.8 6 27 8.2 27 12.1 27 20 16 27 16 27Z" fill="currentColor"/><path d="M9 13.4h4l1.5-3.2 3 7 1.7-3.8H23" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".82"/></svg>
+          <small>心脏</small><em>35%</em>
+        </div>
+        <div class="organ" style="--c:#b91c1c; left:42px; top:180px;">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4s8 9.2 8 15.2A8 8 0 0 1 8 19.2C8 13.2 16 4 16 4Z" fill="currentColor"/><path d="M12 20.5c0 2 1.5 3.7 3.7 4.1" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" opacity=".72"/></svg>
+          <small>血液</small><em>100%</em>
+        </div>
+        <div class="organ" style="--c:#c99722; left:252px; top:194px;">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 5l2.7 6.8L26 14.5l-7.3 2.7L16 25l-2.7-7.8L6 14.5l7.3-2.7L16 5Z" fill="currentColor"/><path d="M25 6l.9 2.5L28 9.4l-2.1.9L25 13l-.9-2.7-2.1-.9 2.1-.9L25 6Z" fill="currentColor" opacity=".52"/></svg>
+          <small>皮肤</small><em>45%</em>
+        </div>
+        <div class="organ" style="--c: var(--blue); left:92px; top:310px;">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M11.2 24.8c-2.2-1.6-3.7-4.2-3.7-7.2 0-4.7 3.7-8.6 8.5-8.6s8.5 3.9 8.5 8.6c0 3-1.5 5.6-3.7 7.2" fill="none" stroke="currentColor" stroke-width="2.9" stroke-linecap="round"/><path d="M16 5.8v12.1l5.2-4.7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.7 17.8h2.8l1.2-2.4 2.5 5.2 1.3-2.8h2.8" fill="none" stroke="white" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" opacity=".78"/></svg>
+          <small>体力</small><em>52%</em>
+        </div>
+        <div class="organ" style="--c:#d78316; left:190px; top:310px;">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4l9 3.4v7.2c0 6-3.8 10.6-9 13.4-5.2-2.8-9-7.4-9-13.4V7.4L16 4Z" fill="currentColor"/><path d="M16 9v12m-5.2-6H21.2" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity=".75"/></svg>
+          <small>免疫</small><em>28%</em>
+        </div>
+      </div>
+      <div class="benefits">• 运动时心脏表现明显改善<br>• 心律更加稳定有力<br>• 轻度运动不再感到胸闷</div>
+      <nav class="tabbar"><div class="tab">主页</div><div class="tab active">恢复</div><div class="tab">成就</div><div class="tab">设置</div></nav>
+    </section>
+
+    <section class="phone">
+      <div class="camera"></div>
+      <div class="status">9:41</div>
+      <div class="rescue-bg"></div>
+      <div class="rescue-content">
+        <div class="rescue-title">撑过这一阵</div>
+        <div class="rescue-copy">烟瘾通常只持续 3 到 5 分钟。跟着节奏呼吸，把注意力交给身体。</div>
+        <div class="breath-orbit"><div class="breath-circle"><span>吸气</span><b>4</b></div></div>
+        <div class="rounds">第 1 / 3 轮</div>
+        <div class="breath-steps"><span></span><span></span><span></span></div>
+      </div>
+      <div class="secondary-btn">退出呼吸练习</div>
+    </section>
+
+    <section class="phone">
+      <div class="camera"></div>
+      <div class="status">9:41</div>
+      <div class="head">
+        <div><div class="title">我的成就</div><div class="subtitle">坚持和省钱都会点亮</div></div>
+      </div>
+      <div class="achievement-head">
+        <b>已解锁 8 / 14</b>
+        <span>下一个：节省 ¥5000</span>
+      </div>
+      <div class="badge-grid">
+        <div class="badge"><i>1h</i><b>第1小时</b><span>稳定开始</span></div>
+        <div class="badge"><i>1d</i><b>第一天</b><span>1天</span></div>
+        <div class="badge"><i>3d</i><b>第三天</b><span>渴望下降</span></div>
+        <div class="badge"><i>7d</i><b>一周稳定</b><span>1周</span></div>
+        <div class="badge"><i>14</i><b>循环改善</b><span>2周</span></div>
+        <div class="badge"><i>30</i><b>一个月</b><span>自控建立</span></div>
+        <div class="badge locked"><i>90</i><b>三个月</b><span>肺功能提升</span></div>
+        <div class="badge locked"><i>180</i><b>半年期</b><span>状态重建</span></div>
+        <div class="badge locked"><i>1y</i><b>一年期</b><span>长期保持</span></div>
+        <div class="badge"><i>¥</i><b>节省 ¥100</b><span>少买几包</span></div>
+        <div class="badge"><i>¥</i><b>节省 ¥500</b><span>可见收益</span></div>
+        <div class="badge"><i>¥</i><b>节省 ¥1000</b><span>一笔预算</span></div>
+      </div>
+      <nav class="tabbar"><div class="tab">主页</div><div class="tab">恢复</div><div class="tab active">成就</div><div class="tab">设置</div></nav>
+    </section>
+
+    <section class="phone">
+      <div class="camera"></div>
+      <div class="status">9:41</div>
+      <div class="head">
+        <div><div class="title">个人设置</div><div class="subtitle">调整计算参数</div></div>
+      </div>
+      <div class="setting-hero">
+        <div class="appmark">戒</div>
+        <div><b>戒烟助手</b><span>已连续记录 45 天</span></div>
+      </div>
+      <div class="group-label">戒烟信息</div>
+      <div class="setting-row single" style="--c: var(--danger)"><i class="set-icon">日</i><b>戒烟日期</b><span>03月21日 02:37</span></div>
+      <div class="group-label">吸烟习惯</div>
+      <div class="setting-row first" style="--c: var(--orange)"><i class="set-icon">支</i><b>每日吸烟量</b><span>20 支</span></div>
+      <div class="setting-row" style="--c: var(--primary)"><i class="set-icon">¥</i><b>每包价格</b><span>25 元</span></div>
+      <div class="setting-row last" style="--c: var(--blue)"><i class="set-icon">包</i><b>每包支数</b><span>20 支</span></div>
+      <div class="save">保存设置</div>
+      <div class="reset">重置所有数据</div>
+      <nav class="tabbar"><div class="tab">主页</div><div class="tab">恢复</div><div class="tab">成就</div><div class="tab active">设置</div></nav>
+    </section>
+  </main>
+</body>
+</html>

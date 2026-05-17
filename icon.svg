@@ -1,42 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#064e3b"/>
-      <stop offset="100%" stop-color="#10b981"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%" stop-color="#0e7a5f"/>
+      <stop offset="55%" stop-color="#065c46"/>
+      <stop offset="100%" stop-color="#033d2e"/>
     </linearGradient>
-    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+    <radialGradient id="shine" cx="38%" cy="18%" r="52%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.22)"/>
       <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.25)"/>
+    </radialGradient>
+    <radialGradient id="bottomglow" cx="50%" cy="100%" r="50%">
+      <stop offset="0%" stop-color="rgba(52,211,153,0.18)"/>
+      <stop offset="100%" stop-color="rgba(52,211,153,0)"/>
+    </radialGradient>
+    <filter id="dshadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="9" flood-color="rgba(0,0,0,0.32)"/>
+    </filter>
+    <filter id="slashshadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="rgba(180,30,30,0.45)"/>
     </filter>
   </defs>
 
   <!-- Background -->
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <!-- Top gloss -->
-  <rect width="512" height="280" rx="112" fill="url(#gloss)"/>
+  <rect width="512" height="512" rx="115" fill="url(#bg)"/>
+  <!-- Top-left shine -->
+  <rect width="512" height="512" rx="115" fill="url(#shine)"/>
+  <!-- Bottom ambient glow -->
+  <rect width="512" height="512" rx="115" fill="url(#bottomglow)"/>
 
-  <!-- No-smoking circle -->
-  <circle cx="256" cy="232" r="158" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="20" filter="url(#shadow)"/>
+  <!-- No-smoking ring -->
+  <circle cx="256" cy="216" r="148" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.88)" stroke-width="17" filter="url(#dshadow)"/>
 
-  <!-- Cigarette: tobacco body -->
-  <rect x="106" y="218" width="148" height="28" rx="14" fill="rgba(255,238,210,0.95)"/>
-  <!-- Cigarette: white paper wrap line -->
-  <line x1="106" y1="232" x2="254" y2="232" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-  <!-- Cigarette: filter (orange) -->
-  <rect x="254" y="218" width="58" height="28" rx="4" fill="rgba(251,163,63,0.95)"/>
-  <!-- Cigarette: filter stripe -->
-  <rect x="262" y="218" width="7" height="28" fill="rgba(255,255,255,0.4)"/>
-  <!-- Cigarette: tip -->
-  <rect x="312" y="218" width="94" height="28" rx="8" fill="rgba(245,245,245,0.95)"/>
+  <!-- Cigarette group -->
+  <!-- Tobacco body -->
+  <rect x="108" y="204" width="148" height="24" rx="12" fill="rgba(255,241,208,0.93)"/>
+  <!-- Paper center line -->
+  <line x1="112" y1="216" x2="256" y2="216" stroke="rgba(210,185,140,0.35)" stroke-width="1.2"/>
+  <!-- Filter (orange) -->
+  <rect x="256" y="204" width="50" height="24" rx="4" fill="#f8973a"/>
+  <!-- Filter highlight stripe -->
+  <rect x="264" y="204" width="5" height="24" fill="rgba(255,255,255,0.32)"/>
+  <!-- Tip -->
+  <rect x="306" y="204" width="96" height="24" rx="10" fill="rgba(238,238,238,0.92)"/>
+  <!-- Tip inner shadow hint -->
+  <rect x="306" y="204" width="96" height="5" rx="3" fill="rgba(0,0,0,0.05)"/>
 
-  <!-- Diagonal slash (red) -->
-  <line x1="148" y1="96" x2="364" y2="368" stroke="#f87171" stroke-width="22" stroke-linecap="round" filter="url(#shadow)"/>
+  <!-- Red ban slash -->
+  <line x1="150" y1="90" x2="362" y2="342"
+        stroke="#ff3b3b" stroke-width="23" stroke-linecap="round"
+        filter="url(#slashshadow)"/>
 
-  <!-- "戒烟" text -->
-  <text x="256" y="448" text-anchor="middle"
+  <!-- "戒烟" label area: pill background -->
+  <rect x="168" y="396" width="176" height="58" rx="29"
+        fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+  <!-- Text -->
+  <text x="256" y="440" text-anchor="middle"
     font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif"
-    font-size="64" font-weight="800" fill="rgba(255,255,255,0.88)" letter-spacing="4">戒烟</text>
+    font-size="60" font-weight="800"
+    fill="rgba(255,255,255,0.95)"
+    letter-spacing="10">戒烟</text>
 </svg>

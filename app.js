@@ -1,5 +1,7 @@
 const MIN = 60*1000, HOUR = 60*MIN, DAY = 24*HOUR, YEAR = 365*DAY;
 const APP_KEY = 'qsmk_v3';
+const DEMO_MODE = new URLSearchParams(location.search).has('demo');
+const APP_VERSION = 6;
 
 // ─── Organ Data ───────────────────────────────────────────────
 const ORGANS = [
@@ -202,7 +204,8 @@ const HEALTH_MS = [
 ];
 
 // ─── State ────────────────────────────────────────────────────
-let state = {
+const DEFAULT_STATE = {
+  version: APP_VERSION,
   quitDate: null,
   cigarettesPerDay: 20,
   pricePerPack: 25,
@@ -210,23 +213,64 @@ let state = {
   unlockedAchievements: {},
 };
 
+let state = {...DEFAULT_STATE};
+
+function clampNumber(value, min, max, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
+function parseDate(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function normalizeState(raw) {
+  const next = {...DEFAULT_STATE, ...(raw || {})};
+  next.version = APP_VERSION;
+  next.cigarettesPerDay = Math.round(clampNumber(next.cigarettesPerDay, 1, 200, DEFAULT_STATE.cigarettesPerDay));
+  next.pricePerPack = clampNumber(next.pricePerPack, 1, 1000, DEFAULT_STATE.pricePerPack);
+  next.cigarettesPerPack = Math.round(clampNumber(next.cigarettesPerPack, 1, 100, DEFAULT_STATE.cigarettesPerPack));
+  next.unlockedAchievements = next.unlockedAchievements && typeof next.unlockedAchievements === 'object'
+    ? next.unlockedAchievements
+    : {};
+  return next;
+}
+
 function loadState() {
-  try { const s = localStorage.getItem(APP_KEY); if (s) state = {...state, ...JSON.parse(s)}; } catch(e) {}
+  if (DEMO_MODE) return;
+  try {
+    const s = localStorage.getItem(APP_KEY);
+    if (s) state = normalizeState(JSON.parse(s));
+  } catch(e) {}
 }
 function saveState() {
-  try { localStorage.setItem(APP_KEY, JSON.stringify(state)); } catch(e) {}
+  if (DEMO_MODE) return;
+  try {
+    state.version = APP_VERSION;
+    state.updatedAt = new Date().toISOString();
+    localStorage.setItem(APP_KEY, JSON.stringify(state));
+  } catch(e) {
+    showToast('保存失败，请检查浏览器存储权限');
+  }
 }
 
 // ─── Stats calculation ────────────────────────────────────────
 function calcStats() {
   if (!state.quitDate) return null;
-  const elapsed = Date.now() - new Date(state.quitDate).getTime();
+  const quitDate = parseDate(state.quitDate);
+  if (!quitDate) return null;
+  const elapsed = Date.now() - quitDate.getTime();
   if (elapsed < 0) return null;
   const totalSec = Math.floor(elapsed / 1000);
   const totalMin = Math.floor(elapsed / MIN);
   const totalDay = Math.floor(elapsed / DAY);
-  const cigsAvoided = Math.floor(state.cigarettesPerDay / (24*60) * totalMin);
-  const pricePerCig = state.pricePerPack / state.cigarettesPerPack;
+  const cigsPerDay = clampNumber(state.cigarettesPerDay, 1, 200, DEFAULT_STATE.cigarettesPerDay);
+  const pricePerPack = clampNumber(state.pricePerPack, 1, 1000, DEFAULT_STATE.pricePerPack);
+  const cigarettesPerPack = clampNumber(state.cigarettesPerPack, 1, 100, DEFAULT_STATE.cigarettesPerPack);
+  const cigsAvoided = Math.floor(cigsPerDay / (24*60) * totalMin);
+  const pricePerCig = pricePerPack / cigarettesPerPack;
   const moneySaved  = cigsAvoided * pricePerCig;
   // 10mg tar / cig, 1mg nicotine / cig
   const tarMg  = cigsAvoided * 10;
@@ -302,9 +346,13 @@ let currentTab = 'home';
 
 function updateUI() {
   const st = calcStats();
-  if (!st) return;
+  if (!st) {
+    renderEmptyHome();
+    return;
+  }
 
   // Timer
+  document.getElementById('hero-label').textContent = '🌿 你已经戒烟';
   document.getElementById('c-days').textContent = st.totalDay;
   const h = String(st.hours).padStart(2,'0');
   const m = String(st.minutes).padStart(2,'0');
@@ -344,6 +392,33 @@ function updateUI() {
   }
 
   checkAchievements(st);
+}
+
+function renderEmptyHome() {
+  document.getElementById('hero-label').textContent = '🌿 准备开始戒烟';
+  document.getElementById('c-days').textContent = '0';
+  document.getElementById('c-hms').textContent = '00 时 00 分 00 秒';
+  document.getElementById('c-since').textContent = '在「设置」里填写戒烟开始时间后自动计时';
+  document.getElementById('s-tar').textContent = '0mg';
+  document.getElementById('s-nic').textContent = '0mg';
+  document.getElementById('s-co').textContent = '未开始';
+  document.getElementById('s-money').textContent = '¥0';
+  document.getElementById('s-cigs').textContent = '0支';
+  document.getElementById('s-life').textContent = '0时';
+  document.getElementById('next-ms-card').innerHTML = '在「设置」里填写戒烟开始时间后，这里会显示下一健康里程碑。';
+  const heroFill = document.getElementById('hero-progress-fill');
+  const heroNext = document.getElementById('hero-next');
+  if (heroFill) heroFill.style.width = '0%';
+  if (heroNext) heroNext.textContent = '去设置页填写戒烟开始时间';
+  updateDailyQuote(0);
+
+  if (currentTab === 'organs') {
+    updateOrganList();
+    if (selectedOrganId) {
+      updateCenterDisplay(selectedOrganId, 0);
+      updateInfoPanel(selectedOrganId, 0);
+    }
+  }
 }
 
 function updateNextMs(elapsed) {
@@ -551,6 +626,38 @@ function updateInfoPanel(id, elapsed) {
 }
 
 // ─── Achievements ─────────────────────────────────────────────
+function achievementReached(a, st) {
+  return !!st && ((a.time && st.elapsed >= a.time) || (a.money && st.moneySaved >= a.money));
+}
+
+function renderAchievementSummary() {
+  const st = calcStats();
+  const unlocked = ACHIEVEMENTS.filter(a => !!state.unlockedAchievements[a.id]).length;
+  const total = ACHIEVEMENTS.length;
+  const pct = total ? Math.round(unlocked / total * 100) : 0;
+  const unlockedEl = document.getElementById('ach-unlocked');
+  const totalEl = document.getElementById('ach-total');
+  const pctEl = document.getElementById('ach-percent');
+  const ring = document.getElementById('ach-summary-ring');
+  const nextEl = document.getElementById('ach-next');
+  if (unlockedEl) unlockedEl.textContent = unlocked;
+  if (totalEl) totalEl.textContent = total;
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (ring) ring.style.setProperty('--ach-pct', pct + '%');
+  if (nextEl) {
+    const next = ACHIEVEMENTS.find(a => !state.unlockedAchievements[a.id]);
+    if (!next) {
+      nextEl.textContent = '全部成就已解锁，保持这条健康轨道';
+    } else if (next.time && st) {
+      nextEl.textContent = `距「${next.name}」约 ${fmtDur(Math.max(0, next.time - st.elapsed))}`;
+    } else if (next.money && st) {
+      nextEl.textContent = `距「${next.name}」还差 ¥${Math.max(0, next.money - st.moneySaved).toFixed(0)}`;
+    } else {
+      nextEl.textContent = '继续保持，下一个徽章已经在路上';
+    }
+  }
+}
+
 function renderAchievements() {
   document.getElementById('ach-grid').innerHTML = ACHIEVEMENTS.map(a => {
     const ul = !!state.unlockedAchievements[a.id];
@@ -563,13 +670,14 @@ function renderAchievements() {
       ${ul ? `<div class="ach-date">✓ ${ds}</div>` : ''}
     </div>`;
   }).join('');
+  renderAchievementSummary();
 }
 
 function checkAchievements(st) {
   let newOne = null;
   ACHIEVEMENTS.forEach(a => {
     if (state.unlockedAchievements[a.id]) return;
-    if ((a.time && st.elapsed >= a.time) || (a.money && st.moneySaved >= a.money)) {
+    if (achievementReached(a, st)) {
       state.unlockedAchievements[a.id] = Date.now();
       saveState(); newOne = a;
     }
@@ -584,6 +692,17 @@ function checkAchievements(st) {
     }
     if (currentTab === 'achievements') renderAchievements();
   }
+}
+
+function reconcileAchievements() {
+  const st = calcStats();
+  if (!st) return;
+  const next = {};
+  ACHIEVEMENTS.forEach(a => {
+    if (!achievementReached(a, st)) return;
+    next[a.id] = state.unlockedAchievements[a.id] || Date.now();
+  });
+  state.unlockedAchievements = next;
 }
 
 // ─── Tab navigation ───────────────────────────────────────────
@@ -605,9 +724,14 @@ function switchTab(tab, btn) {
 
 // ─── Settings ─────────────────────────────────────────────────
 function loadSettingsForm() {
+  const now = new Date();
+  const localNow = new Date(now - now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  document.getElementById('s-date').max = localNow;
   if (state.quitDate) {
     const d = new Date(state.quitDate);
     document.getElementById('s-date').value = new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  } else {
+    document.getElementById('s-date').value = '';
   }
   document.getElementById('s-cigs-pd').value = state.cigarettesPerDay;
   document.getElementById('s-price').value    = state.pricePerPack;
@@ -634,31 +758,145 @@ function updateDateDisplay() {
   if (display) display.textContent = formatDateCN(input?.value);
 }
 
+function isValidQuitDate(value) {
+  const date = parseDate(value);
+  if (!date) {
+    showToast('请选择有效的戒烟时间');
+    return false;
+  }
+  if (date.getTime() > Date.now()) {
+    showToast('戒烟开始时间不能晚于现在');
+    return false;
+  }
+  return true;
+}
+
 function saveSettings() {
   const d  = document.getElementById('s-date').value;
   const cg = parseInt(document.getElementById('s-cigs-pd').value);
   const pr = parseFloat(document.getElementById('s-price').value);
   const pp = parseInt(document.getElementById('s-perpack').value);
-  if (!d) { alert('请设置戒烟日期'); return; }
-  state.quitDate = d; state.cigarettesPerDay = cg||20; state.pricePerPack = pr||25; state.cigarettesPerPack = pp||20;
-  saveState(); alert('✅ 设置已保存'); updateUI();
+  if (!isValidQuitDate(d)) return;
+  state.quitDate = d;
+  state.cigarettesPerDay = Math.round(clampNumber(cg, 1, 200, DEFAULT_STATE.cigarettesPerDay));
+  state.pricePerPack = clampNumber(pr, 1, 1000, DEFAULT_STATE.pricePerPack);
+  state.cigarettesPerPack = Math.round(clampNumber(pp, 1, 100, DEFAULT_STATE.cigarettesPerPack));
+  reconcileAchievements();
+  saveState();
+  updateDateLabel();
+  updateUI();
+  renderAchievementSummary();
+  showToast('设置已保存');
 }
 
 function resetApp() {
-  if (confirm('确定要重置所有数据吗？\n这将清除你的全部戒烟记录。')) {
-    localStorage.removeItem(APP_KEY); location.reload();
-  }
+  showConfirm(
+    '重置所有数据？',
+    '这会清除戒烟开始时间、统计参数和已解锁成就。重置后需要重新完成首次设置。',
+    '确认重置',
+    () => {
+      localStorage.removeItem(APP_KEY);
+      location.reload();
+    }
+  );
+}
+
+function exportData() {
+  const stamp = new Date().toISOString().slice(0, 10).replaceAll('-', '');
+  const payload = {
+    app: '戒烟助手',
+    version: APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    state: normalizeState(state),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `戒烟助手-备份-${stamp}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showToast('备份文件已生成');
+}
+
+function pickImportFile() {
+  document.getElementById('import-file')?.click();
+}
+
+function importData(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(String(reader.result || '{}'));
+      const imported = normalizeState(parsed.state || parsed);
+      if (!imported.quitDate || !isValidQuitDate(imported.quitDate)) return;
+      state = imported;
+      reconcileAchievements();
+      saveState();
+      updateDateLabel();
+      updateUI();
+      loadSettingsForm();
+      renderAchievements();
+      showToast('备份已导入');
+    } catch(e) {
+      showToast('备份文件无法读取');
+    } finally {
+      event.target.value = '';
+    }
+  };
+  reader.onerror = () => {
+    showToast('读取备份失败');
+    event.target.value = '';
+  };
+  reader.readAsText(file);
 }
 
 // ─── Onboarding ───────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const now = new Date();
-  document.getElementById('ob-date').value = new Date(now - now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+function initDateInputs() {
+  const localNow = localNowIso();
+  const obDate = document.getElementById('ob-date');
+  const settingsDate = document.getElementById('s-date');
+  if (obDate) { if (!obDate.value) obDate.value = localNow; obDate.max = localNow; }
+  if (settingsDate) settingsDate.max = localNow;
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDateInputs);
+} else {
+  initDateInputs();
+}
+window.addEventListener('pageshow', initDateInputs);
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  closeConfirm();
+  closeBreathing();
 });
 
+function localNowIso() {
+  const now = new Date();
+  return new Date(now - now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+}
+
 function obNext(step) {
-  if (step === 1) { const v = document.getElementById('ob-date').value; if (!v) { alert('请选择戒烟日期'); return; } state.quitDate = v; }
-  if (step === 2) { const v = parseInt(document.getElementById('ob-cigs').value); if (!v||v<1) { alert('请输入每天吸烟支数'); return; } state.cigarettesPerDay = v; }
+  if (step === 1) {
+    const obDate = document.getElementById('ob-date');
+    let v = obDate.value;
+    if (!v) {
+      v = localNowIso();
+      obDate.value = v;
+    }
+    if (!isValidQuitDate(v)) return;
+    state.quitDate = v;
+  }
+  if (step === 2) {
+    let v = parseInt(document.getElementById('ob-cigs').value);
+    if (!v || v < 1) v = 20;
+    state.cigarettesPerDay = Math.round(clampNumber(v, 1, 200, DEFAULT_STATE.cigarettesPerDay));
+  }
   document.getElementById('ob'+step).classList.remove('active');
   document.getElementById('ob'+(step+1)).classList.add('active');
 }
@@ -666,8 +904,10 @@ function obNext(step) {
 function obFinish() {
   const price = parseFloat(document.getElementById('ob-price').value);
   const perPk = parseInt(document.getElementById('ob-perpack').value);
-  if (!price||price<1) { alert('请输入每包价格'); return; }
-  state.pricePerPack = price; state.cigarettesPerPack = perPk||20;
+  if (!price || price < 1) { showToast('请输入每包价格'); return; }
+  state.pricePerPack = clampNumber(price, 1, 1000, DEFAULT_STATE.pricePerPack);
+  state.cigarettesPerPack = Math.round(clampNumber(perPk, 1, 100, DEFAULT_STATE.cigarettesPerPack));
+  state.createdAt = state.createdAt || new Date().toISOString();
   saveState(); launchApp();
 }
 
@@ -719,6 +959,38 @@ function closeBreathing() {
   document.getElementById('breathing-modal').classList.remove('open');
 }
 
+// ─── App feedback ─────────────────────────────────────────────
+let toastTimer = null;
+let confirmAction = null;
+
+function showToast(message) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  clearTimeout(toastTimer);
+  el.textContent = message;
+  el.classList.add('show');
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+function showConfirm(title, body, actionText, onConfirm) {
+  confirmAction = onConfirm;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-body').textContent = body;
+  document.getElementById('confirm-primary').textContent = actionText;
+  document.getElementById('confirm-modal').classList.add('open');
+}
+
+function closeConfirm() {
+  confirmAction = null;
+  document.getElementById('confirm-modal')?.classList.remove('open');
+}
+
+function runConfirmAction() {
+  const action = confirmAction;
+  closeConfirm();
+  if (action) action();
+}
+
 // ─── Date display ─────────────────────────────────────────────
 function updateDateLabel() {
   const now = new Date();
@@ -728,32 +1000,44 @@ function updateDateLabel() {
   if (si && state.quitDate) {
     const d = new Date(state.quitDate);
     si.textContent = `自 ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 起`;
+  } else if (si) {
+    si.textContent = '在「设置」里填写戒烟开始时间后自动计时';
   }
 }
 
 // ─── Launch ───────────────────────────────────────────────────
+let uiTimer = null;
+
 function launchApp() {
   document.getElementById('onboarding').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   buildConstellation();
   updateDateLabel();
   updateUI();
-  setInterval(updateUI, 1000);
+  clearInterval(uiTimer);
+  uiTimer = setInterval(updateUI, 1000);
 }
 
 // ─── Boot ─────────────────────────────────────────────────────
 loadState();
 
-if (location.search.includes('demo')) {
+if (DEMO_MODE) {
   state = {
+    ...DEFAULT_STATE,
     quitDate: new Date(Date.now() - 45*DAY - 6*HOUR - 23*MIN).toISOString(),
     cigarettesPerDay: 20, pricePerPack: 25, cigarettesPerPack: 20,
     unlockedAchievements: {}
   };
+  reconcileAchievements();
   launchApp();
 } else if (state.quitDate) {
-  launchApp();
+  const quitDate = parseDate(state.quitDate);
+  if (quitDate && quitDate.getTime() <= Date.now()) {
+    launchApp();
+  } else {
+    state.quitDate = null;
+    launchApp();
+  }
 } else {
-  document.getElementById('onboarding').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
+  launchApp();
 }
